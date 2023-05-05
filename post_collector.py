@@ -98,7 +98,7 @@ def rank_posts(df):
     for index in range(df.shape[0]):
         # First, throw away posts with images or bad word count by saving the index to drop it later
         wordcount = len(df.iloc[index]['body'].split(" ")) + len(df.iloc[index]['title'].split(" "))
-        if wordcount not in range(5, 100) or df.iloc[index]['thumbnail'] != "":
+        if wordcount not in range(20, 100) or df.iloc[index]['thumbnail'] != "":
             drop_indices.append(index)
             pass
 
@@ -134,7 +134,7 @@ if __name__ == "__main__":
                 "StoriesAboutKevin",
                 "TodayILearned",]
     
-    posts = accumulate_posts(subreddits, 100)
+    posts = accumulate_posts(subreddits, 25)
 
     posts = rank_posts(posts)
     
