@@ -28,7 +28,7 @@ def create_post(post_name, num_scrape, background_folder, subreddits):
 
     cleanup(post_name)
 
-    print("Done! post created and saved under ", post_name, ".mp4", sep="")
+    print("Done! post created and saved under ", post_name, ".avi", sep="")
 
 
 

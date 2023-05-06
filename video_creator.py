@@ -35,8 +35,10 @@ def create_video(filename, background_folder):
     # Crop it to be aspect ratio 9x16 for reels content
     x, y = background_clip.size
     width = y * (9/16)
-    x1 = (x / 2) - (width / 2)
-    x2 = (x / 2) + (width / 2)
+    # if width % 2 == 1:
+    #     width += 1
+    x1 = math.floor((x / 2) - (width / 2))
+    x2 = math.ceil((x / 2) + (width / 2))
     background_clip = crop(background_clip, x1=x1, y1=0, x2=x2, y2=y)
     background_clip = background_clip.resize(height=1920, width=1080)
 
@@ -46,12 +48,13 @@ def create_video(filename, background_folder):
     reddit_post = ImageClip(filename + ".png").set_start(0).set_duration(voiceover_length).set_pos(("center", "center"))
 
     # Create the final clip with the voiceover audio
-    final_clip = CompositeVideoClip([background_clip, reddit_post]).set_audio(voiceover)
+    final_clip = CompositeVideoClip([background_clip, reddit_post])
+    final_clip.audio = voiceover
 
-    final_clip.write_videofile((filename + ".mp4"), ffmpeg_params=['-vf', 'format=yuv420p'])
+    final_clip.write_videofile((filename + ".mp4"), codec='libx264', ffmpeg_params=['-vf', 'format=yuv420p'], preset='veryslow') #ffmpeg_params=['-vf', 'format=yuv420p']
 
     background_clip.close()
-    reddit_post.close()
+    reddit_post.close() # 9347Kb
     final_clip.close()
 
 
