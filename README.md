@@ -17,3 +17,5 @@ This project involves scraping content from reddit and turning it into TikTok / 
     `(((upvotes * upvote_ratio) + (num_comments * 2)) / wordcount) * (num_awards + 1)`  
     This ensures the content is popular and gives a significant favorance to posts with awards.
 - The post with the highest post-ability rating is then passed on to the image creation step in which the library html2image is used to create a png image of what the reddit post would look like on the web.
+- AWS Polly is then used to create a voiceover of the title and description of the post
+- Finally, the post image, voiceover, and a random snippet of a gaming video are stitched together using MoviePy to create the post.

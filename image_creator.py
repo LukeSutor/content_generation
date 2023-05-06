@@ -38,7 +38,7 @@ def create_html_image(post, filename):
     # Take HTML screenshot
     hti = Html2Image()
 
-    hti.screenshot(html_str=document, save_as=filename)
+    hti.screenshot(html_str=document, save_as=(filename + ".png"))
 
 
 def row_same(row):
@@ -68,7 +68,7 @@ def clean_image(filename):
     Given a filename, remove the black background and unnecessary pixels from the image.
     '''
 
-    image = Image.open(filename)
+    image = Image.open(filename + ".png")
 
     image = np.asarray(image.convert("RGBA"))
 
@@ -97,7 +97,7 @@ def clean_image(filename):
     # Save image
     image = Image.fromarray(image)
 
-    image = image.save(filename)
+    image = image.save(filename + ".png")
 
 
 def create_image(post, filename):
