@@ -72,6 +72,7 @@ def accumulate_posts(subreddits, n):
                 post_data = pandas.DataFrame([{
                     'title': post['title'],
                     'body': post['selftext'],
+                    'author': post['author'],
                     'upvotes': post['ups'],
                     'upvote_ratio': post['upvote_ratio'],
                     'num_awards': post['total_awards_received'],
@@ -116,6 +117,16 @@ def rank_posts(df):
     df = df.sort_values(by='postability', ascending=False)
 
     return df
+
+
+def get_top_post(subreddits, n):
+    posts = accumulate_posts(subreddits, n)
+
+    posts = rank_posts(posts)
+
+    top_post = posts.iloc[0]
+
+    return top_post
 
 
 if __name__ == "__main__":    

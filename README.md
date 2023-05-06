@@ -5,6 +5,7 @@ This project involves scraping content from reddit posts and turning it into soc
 - First, relevant subreddits are scraped using the Reddit OAuth API. The data is then saved to a dataframe including the fields:
     - Title
     - Body
+    - Author
     - Upvotes
     - Upvote Ratio
     - Number of Awards
