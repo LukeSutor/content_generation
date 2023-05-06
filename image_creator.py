@@ -4,7 +4,8 @@ import math
 import numpy as np
 from PIL import Image
 
-def create_image(post, filename):
+
+def create_html_image(post, filename):
     '''
     Takes in a dataframe of a post and creates an html document of it.
     Then uses html2image to take a screenshot of said html.
@@ -13,8 +14,12 @@ def create_image(post, filename):
     with open("RedditPost.html", "r") as f:
         document = f.read()
 
+    # Format the body
+    body = post['body']
+    body = body.replace('\n', '<br />')
+
     # Format the upvotes
-    upvotes = post['upvotes']
+    upvotes = int(post['upvotes'])
     if upvotes >= 1000:
         upvotes = str(upvotes // 100 / 10) + "k"
     else:
@@ -22,7 +27,7 @@ def create_image(post, filename):
 
     # Set the text for all the elements
     document = document.replace("_/title/_", post['title'])
-    document = document.replace("_/body/_", post['body'])
+    document = document.replace("_/body/_", body)
     document = document.replace("_/username/_", post['author'])
     document = document.replace("_/upvotes/_", upvotes)
     document = document.replace("_/num_comments/_", str(post['num_comments']))
@@ -93,6 +98,14 @@ def clean_image(filename):
     image = Image.fromarray(image)
 
     image = image.save(filename)
+
+
+def create_image(post, filename):
+    '''
+    Helper function to create and clean a post image.
+    '''
+    create_html_image(post, filename)
+    clean_image(filename)
 
 
 if __name__ == "__main__":

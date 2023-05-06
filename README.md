@@ -1,5 +1,5 @@
 # Social Media Content Generation
-This project involves scraping content from reddit posts and turning it into social media posts.  
+This project involves scraping content from reddit and turning it into TikTok / Instagram Reels type posts.  
 
 ## The Pipeline:
 - First, relevant subreddits are scraped using the Reddit OAuth API. The data is then saved to a dataframe including the fields:

@@ -3,6 +3,7 @@ import pandas
 from dotenv import load_dotenv
 import os
 
+
 def get_oauth_headers():
     '''
     Using the environment variables saved in .env, get an OAuth token and return a header
