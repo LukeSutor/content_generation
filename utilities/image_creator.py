@@ -1,8 +1,10 @@
 from html2image import Html2Image
+from dotenv import load_dotenv
+from PIL import Image
+import numpy as np
 import random
 import math
-import numpy as np
-from PIL import Image
+import os
 
 
 def create_html_image(post, filename):
@@ -10,8 +12,11 @@ def create_html_image(post, filename):
     Takes in a dataframe of a post and creates an html document of it.
     Then uses html2image to take a screenshot of said html.
     '''
+    load_dotenv()
 
-    with open("RedditPost.html", "r") as f:
+    save_dir = os.getenv('SAVE_PATH')
+
+    with open("./utilities/RedditPost.html", "r") as f:
         document = f.read()
 
     # Format the body
@@ -43,7 +48,7 @@ def create_html_image(post, filename):
 
 
     # Take HTML screenshot
-    hti = Html2Image()
+    hti = Html2Image(output_path=save_dir)
 
     hti.screenshot(html_str=document, save_as=(filename + ".png"))
 
@@ -74,8 +79,10 @@ def clean_image(filename):
     '''
     Given a filename, remove the black background and unnecessary pixels from the image.
     '''
+    load_dotenv()
 
-    image = Image.open(filename + ".png")
+    save_dir = os.getenv('SAVE_PATH')
+    image = Image.open(os.path.join(save_dir, filename + ".png"))
 
     image = np.asarray(image.convert("RGBA"))
 
@@ -104,7 +111,7 @@ def clean_image(filename):
     # Save image
     image = Image.fromarray(image)
 
-    image = image.save(filename + ".png")
+    image = image.save(os.path.join(save_dir, filename + ".png"))
 
 
 def create_image(post, filename):

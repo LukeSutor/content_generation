@@ -1,5 +1,5 @@
-import boto3
 from dotenv import load_dotenv
+import boto3
 import os
 
 
@@ -41,6 +41,7 @@ def create_voiceover(post, filename):
     region = os.getenv('AWS_REGION')
     polly_access = os.getenv('POLLY_ACCESS')
     polly_secret = os.getenv('POLLY_SECRET')
+    save_path = os.getenv('SAVE_PATH')
 
     client = boto3.client(
         'polly', 
@@ -62,7 +63,7 @@ def create_voiceover(post, filename):
 
     voiceover = response['AudioStream'].read()
 
-    with open((filename + ".mp3"), "wb") as binary_file:
+    with open(os.path.join(save_path, filename + ".mp3"), "wb") as binary_file:
         binary_file.write(voiceover)
 
 

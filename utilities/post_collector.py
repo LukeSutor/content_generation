@@ -1,7 +1,6 @@
+from dotenv import load_dotenv
 import requests
 import pandas
-import math
-from dotenv import load_dotenv
 import os
 
 
@@ -134,17 +133,18 @@ def get_top_post(subreddits):
     '''
     Get the most postable reddit post from the subreddit(s) given
     '''
-    posts = accumulate_posts(subreddits, 50)
+    load_dotenv()
+    num_scrape = int(os.getenv('NUM_SCRAPE'))
+
+    posts = accumulate_posts(subreddits, num_scrape)
     posts = rank_posts(posts)
 
-    n = 100
     while posts.shape[0] == 0:
-        posts = accumulate_posts(subreddits, n)
+        num_scrape += num_scrape
+        posts = accumulate_posts(subreddits, num_scrape)
         posts = rank_posts(posts)
-        n+=50
 
-    top_post = posts.iloc[0]
-    return top_post
+    return posts.iloc[0]
 
 
 if __name__ == "__main__":    
