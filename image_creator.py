@@ -25,10 +25,17 @@ def create_html_image(post, filename):
     else:
         upvotes = str(upvotes)
 
+    # Format the awards (only add up to 8)
+    award_format = "<img style=\"height: 20px; margin-left: 8px;\" src=\"{}\" />"
+    awards = ""
+    for award in post['awards'][0:8]:
+        awards += award_format.format(award)
+
     # Set the text for all the elements
     document = document.replace("_/title/_", post['title'])
     document = document.replace("_/body/_", body)
     document = document.replace("_/username/_", post['author'])
+    document = document.replace("_/awards/_", awards)
     document = document.replace("_/upvotes/_", upvotes)
     document = document.replace("_/num_comments/_", str(post['num_comments']))
     # Make the time a random number between 2 and 23 hours
@@ -109,4 +116,17 @@ def create_image(post, filename):
 
 
 if __name__ == "__main__":
-    pass
+    post_data = {
+        'title': 'God created the first Swiss and asked him:',
+        'body': '"What do you want?" "Mountains," replied the Swiss.\n\nGod created mountains for the Swiss and asked him, "What else do you want?" "Cows," said the Swiss.\n\nGod created cows for the Swiss. The Swiss milked the cows, tasted the milk and asked, "Will you taste, dear God?" The Swiss filled a cup with milk and handed it to God. Dear God took the cup, drank it and said, "The milk is really quite good. What more do you want?"\n\n\"1.20 Swiss Franc.\"',
+        'author': 'Joe Biden',
+        'upvotes': 1450,
+        'num_awards': 1,
+        'num_comments': 450,
+        'thumbnail': '',
+        'awards': ["https://i.redd.it/award_images/t5_22cerq/5nswjpyy44551_Ally.png" for _ in range(1)],
+        'nsfw': False,
+        'postability': 5.64
+        }
+    
+    create_image(post_data, 'testing')

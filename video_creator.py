@@ -30,7 +30,7 @@ def create_video(filename, background_folder):
 
     video_length = background_clip.duration
     start_time = math.floor(random.random() * (video_length  - voiceover_length))
-    background_clip = background_clip.subclip(start_time, (start_time + voiceover_length))
+    background_clip = background_clip.subclip(start_time, (start_time + voiceover_length + 1))
 
     # Crop it to be aspect ratio 9x16 for reels content
     x, y = background_clip.size
@@ -45,13 +45,13 @@ def create_video(filename, background_folder):
     # background_clip.write_videofile('testing.mp4')
 
     # Add reddit post image overlay
-    reddit_post = ImageClip(filename + ".png").set_start(0).set_duration(voiceover_length).set_pos(("center", "center"))
+    reddit_post = ImageClip(filename + ".png").set_start(0).set_duration(voiceover_length + 1).set_pos(("center", "center"))
 
     # Create the final clip with the voiceover audio
     final_clip = CompositeVideoClip([background_clip, reddit_post])
     final_clip.audio = voiceover
 
-    final_clip.write_videofile((filename + ".mp4"), codec='libx264', ffmpeg_params=['-vf', 'format=yuv420p'], preset='veryslow') #ffmpeg_params=['-vf', 'format=yuv420p']
+    final_clip.write_videofile((filename + ".mp4"), codec='libx264', ffmpeg_params=['-vf', 'format=yuv420p'], preset='ultrafast') #ffmpeg_params=['-vf', 'format=yuv420p']
 
     background_clip.close()
     reddit_post.close() # 9347Kb

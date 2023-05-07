@@ -1,5 +1,6 @@
 import requests
 import pandas
+import math
 from dotenv import load_dotenv
 import os
 
@@ -70,15 +71,22 @@ def accumulate_posts(subreddits, n):
         else:
             for post in subreddit_posts:
                 post = post['data']
+                # Gather award url(s)
+                awards = []
+                if post['total_awards_received'] != 0:
+                    for award in post['all_awardings']:
+                        awards.append(award['icon_url'])
+
                 post_data = pandas.DataFrame([{
                     'title': post['title'],
                     'body': post['selftext'],
                     'author': post['author'],
                     'upvotes': post['ups'],
-                    'upvote_ratio': post['upvote_ratio'],
                     'num_awards': post['total_awards_received'],
                     'num_comments': post['num_comments'],
                     'thumbnail': post['thumbnail'],
+                    'awards': awards,
+                    'nsfw': post['over_18'],
                     'postability': 0
                 }])
                 df = pandas.concat([df, post_data], ignore_index=True)
@@ -88,45 +96,54 @@ def accumulate_posts(subreddits, n):
 
 def rank_posts(df):
     '''
-    Given a dataframe of posts, rank the posts and reorder them by measure of post-ability
+    Given a dataframe of posts, throw away unpostable ones, then calculate most postable one.
 
-    Post-abiility is determined by the following:
-        (((upvotes * upvote_ratio) + (num_comments * 2)) / wordcount) * (num_awards + 1)
-    There is also a max word count of 200 words allowed.
+    Criteria for being postable:
+        - Wordcount in range [50, 120]
+        - Not NSFW
+        - No images
+
+    Posts are more postable if:
+        - They have awards
+        - They're longer in length (but still in the proper range)
+        - They have more upvotes
+        - Postability is calculated by:
+            - (upvotes / 10) * word_count * (20**num_awards)
     '''
 
     drop_indices = []
 
+    # Iterate through posts and check all conditions.
+    # Then calculate postability if all conditions met.
     for index in range(df.shape[0]):
-        # First, throw away posts with images or bad word count by saving the index to drop it later
         wordcount = len(df.iloc[index]['body'].split(" ")) + len(df.iloc[index]['title'].split(" "))
-        if wordcount not in range(20, 100) or df.iloc[index]['thumbnail'] != "":
+        if wordcount not in range(40, 121) or df.iloc[index]['thumbnail'] != "" or df.iloc[index]['nsfw']:
             drop_indices.append(index)
-            pass
+        else:
+            postability = (df.iloc[index]['upvotes'] / 10) * wordcount * (20**df.iloc[index]['num_awards'])
+            df.at[index, 'postability'] = postability
 
-        # Calculate postability
-        upvote_num = df.iloc[index]['upvotes'] * df.iloc[index]['upvote_ratio']
-        comments_num = df.iloc[index]['num_comments'] * 2
-        ratio = (upvote_num + comments_num) / wordcount
-        postability = ratio * (df.iloc[index]['num_awards'] + 1)
-        
-        df.at[index, 'postability'] = postability
-
-    # Drop posts
+    # Drop unpostables and sort the rest by postability
     df.drop(drop_indices, inplace=True)
-
     df = df.sort_values(by='postability', ascending=False)
 
     return df
 
 
-def get_top_post(subreddits, n):
-    posts = accumulate_posts(subreddits, n)
-
+def get_top_post(subreddits):
+    '''
+    Get the most postable reddit post from the subreddit(s) given
+    '''
+    posts = accumulate_posts(subreddits, 50)
     posts = rank_posts(posts)
 
-    top_post = posts.iloc[0]
+    n = 100
+    while posts.shape[0] == 0:
+        posts = accumulate_posts(subreddits, n)
+        posts = rank_posts(posts)
+        n+=50
 
+    top_post = posts.iloc[0]
     return top_post
 
 

@@ -7,14 +7,16 @@ This project involves scraping content from reddit and turning it into TikTok / 
     - Body
     - Author
     - Upvotes
-    - Upvote Ratio
     - Number of Awards
     - Number of Comments
     - Thumbnail
+    - Awards
+    - NSFW
+    - Postability
 - Next, these posts are passed through a ranking algorithm to find the most content-worthy one. The algorithm is as follows:
-    - Posts must be between 20 and 99 words in length including the title, (brevity is important for reels content) and include no images.
+    - Posts must be between 40 and 120 words in length including the title, include no images, and not be NSFW.
     - If the posts meet the above criteria, a "post-ability" value is calculated based on:  
-    `(((upvotes * upvote_ratio) + (num_comments * 2)) / wordcount) * (num_awards + 1)`  
+    `(upvotes / 10) * word_count * (20**num_awards)`  
     This ensures the content is popular and gives a significant favorance to posts with awards.
 - The post with the highest post-ability rating is then passed on to the image creation step in which the library html2image is used to create a png image of what the reddit post would look like on the web.
 - AWS Polly is then used to create a voiceover of the title and description of the post

@@ -13,12 +13,12 @@ def cleanup(post_name):
     os.remove(post_name + ".mp3")
 
 
-def create_post(post_name, num_scrape, background_folder, subreddits):
+def create_post(post_name, background_folder, subreddits):
     '''
     Given a post name, the number of posts to scrape, a background folder containing
     background videos, and a list of subreddits, create a reel.
     '''
-    post = get_top_post(subreddits, num_scrape)
+    post = get_top_post(subreddits)
 
     create_image(post, post_name)
 
@@ -28,13 +28,12 @@ def create_post(post_name, num_scrape, background_folder, subreddits):
 
     cleanup(post_name)
 
-    print("Done! post created and saved under ", post_name, ".avi", sep="")
+    print("Done! post created and saved under ", post_name, ".mp4", sep="")
 
 
 
 if __name__ == "__main__":
     POST_NAME = 'real_post'
-    NUM_POSTS = 25
     BACKROUND_VIDEO_FOLDER = './gaming_videos'
     SUBREDDITS = ("TalesFromRetail",
                 "AmItheAsshole",
@@ -51,5 +50,4 @@ if __name__ == "__main__":
                 "StoriesAboutKevin",
                 "TodayILearned",)
     
-    create_post(POST_NAME, NUM_POSTS, BACKROUND_VIDEO_FOLDER, SUBREDDITS)
-    
+    create_post(POST_NAME, BACKROUND_VIDEO_FOLDER, SUBREDDITS)

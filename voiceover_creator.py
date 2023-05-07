@@ -75,5 +75,3 @@ if __name__ == "__main__":
 
     create_voiceover(post)
     # format_ssml(post['title'] + "\n" + post['body'])
-
-    
