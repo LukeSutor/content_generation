@@ -6,3 +6,4 @@
 *.webm
 
 reddit_images/
+__pycache__/
