@@ -6,11 +6,11 @@ This project involves scraping content from reddit and turning it into TikTok / 
 ### 1. Fetching Posts
 - First, 100 posts from the past 23 hours are collected from each of the input subreddits using the Reddit OAuth API. The data is then saved to a dataframe including the fields:
     ```
-    - Title                                 - Body
-    - Author                                - Upvotes
-    - Number of Comments                    - Number of Awards
-    - Thumbnail                             - Awards  
-    - Postability                           - NSFW Rating
+    - Title                 - Body
+    - Author                - Upvotes
+    - Number of Comments    - Number of Awards
+    - Thumbnail             - Awards  
+    - Postability           - NSFW Rating
     ```
 
 ### 2. Ranking Posts
