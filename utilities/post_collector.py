@@ -164,6 +164,9 @@ def get_top_post(subreddits):
     '''
     Get the most postable reddit post from the subreddit(s) given
     '''
+    load_dotenv()
+    bound_increase = int(os.getenv("BOUND_INCREASE"))
+
     # Try to get num_posts posts, and use pagination to get more results if necessary
     posts, final_ids = accumulate_posts(subreddits)
     total_posts = pandas.DataFrame()
@@ -183,12 +186,10 @@ def get_top_post(subreddits):
 
     # If no posts can be found with the current bounds, 
     # gradually widen them until one is.
-    widen_factor = 10
-    # print(total_posts)
     while posts.shape[0] == 0:
-        posts = rank_posts(total_posts, widen_factor)
-        widen_factor += 10
-        if widen_factor >= 500:
+        posts = rank_posts(total_posts, bound_increase)
+        bound_increase += bound_increase
+        if bound_increase > 500:
             break
 
     # If no post is found STILL, throw an exception and terminate

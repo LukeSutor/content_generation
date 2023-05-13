@@ -31,20 +31,20 @@ def create_post(subreddits, post_name=None):
     if post_name is None:
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    post = get_top_post(subreddits)
+    # post = get_top_post(subreddits)
 
-    # post = {
-    #     'title': 'God created the first Swiss and asked him:',
-    #     'body': '"What do you want?" "Mountains," replied the Swiss.\n\nGod created mountains for the Swiss and asked him, "What else do you want?" "Cows," said the Swiss.\n\nGod created cows for the Swiss. The Swiss milked the cows, tasted the milk and asked, "Will you taste, dear God?" The Swiss filled a cup with milk and handed it to God. Dear God took the cup, drank it and said, "The milk is really quite good. What more do you want?"\n\n\"1.20 Swiss Franc.\"',
-    #     'author': 'Joe Biden',
-    #     'upvotes': 1450,
-    #     'num_awards': 1,
-    #     'num_comments': 450,
-    #     'thumbnail': '',
-    #     'awards': ["https://i.redd.it/award_images/t5_22cerq/5nswjpyy44551_Ally.png"],
-    #     'nsfw': False,
-    #     'postability': 5.64
-    #     }
+    post = {
+        'title': '"World\'s funniest joke"',
+        'body': 'Two hunters are out in the woods when one of them collapses. He doesn\'t seem to be breathing and his eyes are glazed. The other guy whips out his phone and calls the emergency services. He gasps, "My friend is dead! What can I do?" The operator says, "Calm down. I can help. First, let\'s make sure he\'s dead." There is a silence; then a gun shot is heard. Back on the phone, the guy says, "OK, now what?"',
+        'author': 'Richard_Wiseman',
+        'upvotes': 1951,
+        'num_awards': 1,
+        'num_comments': 256,
+        'thumbnail': '',
+        'awards': ["https://github.com/androiddevnotes/reddit-awards/raw/main/assets/reactions/TableSlap_512.gif"],
+        'nsfw': False,
+        'postability': 5.64
+        }
 
     create_image(post, post_name)
 

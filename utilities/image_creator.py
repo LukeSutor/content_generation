@@ -84,7 +84,7 @@ def clean_image(filename):
     save_dir = os.getenv('SAVE_PATH')
     image = Image.open(os.path.join(save_dir, filename + ".png"))
 
-    image = np.asarray(image.convert("RGBA"))
+    image = np.array(image.convert("RGBA"))
 
     # Get ids of black pixels and set to transparent
     idx = (image[...,:3] == np.array((0,0,0))).all(axis=-1)
@@ -92,7 +92,7 @@ def clean_image(filename):
 
     # Delete all fully-transparent rows
     transparent_rows = []
-    idx = np.asarray(idx)
+    idx = np.array(idx)
     for i, row in enumerate(idx):
         if row_same(row):
             transparent_rows.append(i)
@@ -136,4 +136,17 @@ if __name__ == "__main__":
         'postability': 5.64
         }
     
-    create_image(post_data, 'testing')
+    post_data = {
+        'title': 'Example Post',
+        'body': 'This is an example Reddit post made using the html2image library. The post is authored by me and has 1500 upvotes, 123 comments, and the Reddit Gold award.',
+        'author': 'lukesutor',
+        'upvotes': 1500,
+        'num_awards': 1,
+        'num_comments': 123,
+        'thumbnail': '',
+        'awards': ["https://www.redditstatic.com/gold/awards/icon/gold_512.png"],
+        'nsfw': False,
+        'postability': 5.64
+        }
+    
+    create_image(post_data, 'example_post')
