@@ -27,8 +27,8 @@ This project involves scraping content from reddit and turning it into TikTok / 
 ### 4. Image Creation
 - The post with the highest post-ability rating is then passed on to the image creation step in which the `html2image` library is used to create a png image of what the reddit post would look like on the web, including accurate author, upvotes, number of comments, and awards.  
 
-<p align="center" style="margin-top: 10px">
-    <img src="media/example_post.png" width="60%" alt="An example Reddit post made using the html2image library">
+<p align="center">
+    <img src="media/example_post.png" width="75%" alt="An example Reddit post made using the html2image library">
 </p>
 
 ### 5. Voiceover Creation
@@ -38,7 +38,11 @@ This project involves scraping content from reddit and turning it into TikTok / 
 - Finally, the post image, voiceover, and a random snippet of a gaming video are stitched together using `moviepy` to create the post.
 
 ## Example Posts:  <br />
-<div style="display: flex; justify-content: space-around;">
-<img style="width: 40%" src="media/example_post_1.gif" alt="Example social media post made using the content generation pipeline."></img> <br /><img style="width: 40%" src="media/example_post_2.gif" alt="Example social media post made using the content generation pipeline."></img> <br />
-</div>
+<p float="left" align="center">
+    <img src="media/example_post_1.gif" alt="Example social media post made using the content generation pipeline."></img>
+    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <img src="media/example_post_2.gif" alt="Example social media post of a joke made using the content generation pipeline."></img>
+    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+</p>
+
 <p align="center"><i>Note that the video quality and framerate were greatly reduced due to being converted to a gif. <br />Generated mp4 videos have 1080p quality</i></p>
