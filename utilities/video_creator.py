@@ -43,8 +43,8 @@ def create_video(filename):
     # Crop it to be aspect ratio 9x16 for reels content
     x, y = background_clip.size
     width = y * (9/16)
-    # if width % 2 == 1:
-    #     width += 1
+    if width % 2 == 1:
+        width += 1
     x1 = math.floor((x / 2) - (width / 2))
     x2 = math.ceil((x / 2) + (width / 2))
     background_clip = crop(background_clip, x1=x1, y1=0, x2=x2, y2=y)
