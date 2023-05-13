@@ -21,6 +21,9 @@ def create_video(filename):
     '''
     Given a post and filename, create a TikTok / Instagram Reels style video.
     '''
+
+    # TODO: crop videos down to the proper length and segment larger videos
+
     load_dotenv()
     save_path = os.getenv('SAVE_PATH')
     background_folder = os.getenv('BACKGROUND_VIDEO_DIR')

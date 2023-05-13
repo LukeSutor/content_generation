@@ -36,15 +36,26 @@ def get_oauth_headers():
     return headers
 
 
-def get_top_posts(subreddit, n, headers=None):
+def get_top_posts(subreddit, headers=None, final_id=None):
     '''
     Given a subreddit, fetch the top n posts in the past 24 hours.
     If OAuth headers are passed, they will be used in the get request.
     '''
+    load_dotenv()
+    
+    num_scrape = os.getenv("NUM_SCRAPE")
+
+    # Based on whether a header and final ID is passed, call the proper endpoint
     if headers is not None:
-        r = requests.get(f"https://oauth.reddit.com/r/{subreddit}/top.json?sort=top&t=day&limit={n}", headers=headers)
+        if final_id is not None:
+            r = requests.get(f"https://oauth.reddit.com/r/{subreddit}/top.json?sort=top&t=23h&limit={500}&after={final_id}", headers=headers)
+        else:
+            r = requests.get(f"https://oauth.reddit.com/r/{subreddit}/top.json?sort=top&t=23h&limit={500}", headers=headers)
     else:
-        r = requests.get(f"https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=day&limit={n}")
+        if final_id is not None:
+            r = requests.get(f"https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=23h&limit={num_scrape}&after={final_id}")
+        else:
+            r = requests.get(f"https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=23h&limit={num_scrape}")
 
     if(r.status_code == 200):
         return r.json()['data']['children']
@@ -53,21 +64,38 @@ def get_top_posts(subreddit, n, headers=None):
         return False
     
 
-def accumulate_posts(subreddits, n):
+def accumulate_posts(subreddits, final_ids=None):
     '''
     Iterate through subreddits provided and get the specific number of posts to be
     saved to a pandas dataframe
     '''
+    load_dotenv()
+    
+    num_scrape = os.getenv("NUM_SCRAPE")
+
     headers = get_oauth_headers()
 
     df = pandas.DataFrame()
+    
+    if final_ids is None:
+        final_ids = [None] * len(subreddits)
 
-    for subreddit in subreddits:
-        subreddit_posts = get_top_posts(subreddit, n, headers)
+    new_final_ids = [None] * len(subreddits)
 
-        if not subreddit_posts:
-            print("Error fetching posts from", subreddit, "subreddit.")
+    for i, subreddit in enumerate(subreddits):
+        # Scrape more posts until the end is reached
+        if final_ids[i] != 'end':
+            subreddit_posts = get_top_posts(subreddit, headers, final_ids[i])
         else:
+            subreddit_posts = []
+        
+        # Only append a final ID if it's possible to get more posts
+        if len(subreddit_posts) == int(num_scrape):
+            new_final_ids[i] = subreddit_posts[-1]['data']['name']
+        else:
+            new_final_ids[i] = 'end'
+
+        if subreddit_posts:
             for post in subreddit_posts:
                 post = post['data']
                 # Gather award url(s)
@@ -90,10 +118,10 @@ def accumulate_posts(subreddits, n):
                 }])
                 df = pandas.concat([df, post_data], ignore_index=True)
 
-    return df
+    return df, new_final_ids
 
 
-def rank_posts(df):
+def rank_posts(df, widen_factor=0):
     '''
     Given a dataframe of posts, throw away unpostable ones, then calculate most postable one.
 
@@ -109,14 +137,17 @@ def rank_posts(df):
         - Postability is calculated by:
             - (upvotes / 10) * word_count * (20**num_awards)
     '''
+    load_dotenv()
+
+    default_bounds = tuple(map(int, os.getenv('WORDCOUNT_BOUNDS').split(",")))
+    bounds = (max(0, default_bounds[0] - widen_factor), (default_bounds[1] + widen_factor))
 
     drop_indices = []
-
     # Iterate through posts and check all conditions.
     # Then calculate postability if all conditions met.
     for index in range(df.shape[0]):
         wordcount = len(df.iloc[index]['body'].split(" ")) + len(df.iloc[index]['title'].split(" "))
-        if wordcount not in range(40, 121) or df.iloc[index]['thumbnail'] != "" or df.iloc[index]['nsfw']:
+        if wordcount not in range(*bounds) or df.iloc[index]['thumbnail'] != "" or df.iloc[index]['nsfw']:
             drop_indices.append(index)
         else:
             postability = (df.iloc[index]['upvotes'] / 10) * wordcount * (20**df.iloc[index]['num_awards'])
@@ -133,22 +164,43 @@ def get_top_post(subreddits):
     '''
     Get the most postable reddit post from the subreddit(s) given
     '''
-    load_dotenv()
-    num_scrape = int(os.getenv('NUM_SCRAPE'))
-
-    posts = accumulate_posts(subreddits, num_scrape)
+    # Try to get num_posts posts, and use pagination to get more results if necessary
+    posts, final_ids = accumulate_posts(subreddits)
+    total_posts = pandas.DataFrame()
+    total_posts = pandas.concat([total_posts, posts], ignore_index=True)
     posts = rank_posts(posts)
 
+    # TODO: add proper pagination for post selection https://www.reddit.com/dev/api/#GET_{sort}
+
+    # Keep on paginating until there are no more results to get, keeping track of total posts
     while posts.shape[0] == 0:
-        num_scrape += num_scrape
-        posts = accumulate_posts(subreddits, num_scrape)
+        posts, new_final_ids = accumulate_posts(subreddits, final_ids)
+        total_posts = pandas.concat([total_posts, posts], ignore_index=True)
+        if posts.empty:
+            break
         posts = rank_posts(posts)
+        final_ids = new_final_ids
+
+    # If no posts can be found with the current bounds, 
+    # gradually widen them until one is.
+    widen_factor = 10
+    # print(total_posts)
+    while posts.shape[0] == 0:
+        posts = rank_posts(total_posts, widen_factor)
+        widen_factor += 10
+        if widen_factor >= 500:
+            break
+
+    # If no post is found STILL, throw an exception and terminate
+    if posts.shape[0] == 0:
+        raise Exception("No posts could be found")
 
     return posts.iloc[0]
 
 
 if __name__ == "__main__":    
-    subreddits = ["TalesFromRetail",
+    subreddits = [
+                "TalesFromRetail",
                 "AmItheAsshole",
                 "Showerthoughts",
                 "dadjokes",
@@ -161,12 +213,9 @@ if __name__ == "__main__":
                 "Punny",
                 "Lightbulb",
                 "StoriesAboutKevin",
-                "TodayILearned",]
-    
-    posts = accumulate_posts(subreddits, 25)
+                "TodayILearned",
+                ]
 
-    posts = rank_posts(posts)
+    post = get_top_post(subreddits)
     
-    for i in range(10):
-        print("Post {} title:".format(i), posts.iloc[i]['title'], "\n")
-        print("Post {} body:".format(i), posts.iloc[i]['body'], "\n\n")
+    print("Title:", post['title'], "\nBody:", post['body'])
