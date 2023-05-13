@@ -34,14 +34,14 @@ def create_post(subreddits, post_name=None):
     # post = get_top_post(subreddits)
 
     post = {
-        'title': '"World\'s funniest joke"',
-        'body': 'Two hunters are out in the woods when one of them collapses. He doesn\'t seem to be breathing and his eyes are glazed. The other guy whips out his phone and calls the emergency services. He gasps, "My friend is dead! What can I do?" The operator says, "Calm down. I can help. First, let\'s make sure he\'s dead." There is a silence; then a gun shot is heard. Back on the phone, the guy says, "OK, now what?"',
-        'author': 'Richard_Wiseman',
-        'upvotes': 1951,
-        'num_awards': 1,
-        'num_comments': 256,
+        'title': 'Example Post',
+        'body': 'This post was created using the content generation pipeline.',
+        'author': 'lukesutor',
+        'upvotes': 2100,
+        'num_awards': 0,
+        'num_comments': 323,
         'thumbnail': '',
-        'awards': ["https://github.com/androiddevnotes/reddit-awards/raw/main/assets/reactions/TableSlap_512.gif"],
+        'awards': [],
         'nsfw': False,
         'postability': 5.64
         }
