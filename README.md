@@ -39,10 +39,9 @@ This project involves scraping content from reddit and turning it into TikTok / 
 
 ## Example Posts:  <br />
 <p float="left" align="center">
-    <img src="media/example_post_1.gif" alt="Example social media post made using the content generation pipeline."></img>
+    <img width="40%" src="media/example_post_1.gif" alt="Example social media post made using the content generation pipeline."></img>
     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-    <img src="media/example_post_2.gif" alt="Example social media post of a joke made using the content generation pipeline."></img>
-    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <img width="40%" src="media/example_post_2.gif" alt="Example social media post of a joke made using the content generation pipeline."></img>
 </p>
 
 <p align="center"><i>Note that the video quality and framerate were greatly reduced due to being converted to a gif. <br />Generated mp4 videos have 1080p quality</i></p>
