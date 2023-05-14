@@ -118,9 +118,12 @@ def accumulate_posts(subreddits, headers=None, final_ids=None):
     return df, new_final_ids
 
 
-def rank_posts(df, widen_factor=0):
+def rank_posts(df, widen_factor=0, ub_multiplier=1):
     '''
     Given a dataframe of posts, throw away unpostable ones, then calculate most postable one.
+
+    widen_factor is used for expanding the upper bound to try to find a post
+    ub_multiplier is used when trying to scrape a comment as well, shrinking the upper bound
 
     Criteria for being postable:
         - Wordcount in range [50, 120]
@@ -140,6 +143,8 @@ def rank_posts(df, widen_factor=0):
     load_dotenv()
     default_bounds = tuple(map(int, os.getenv('WORDCOUNT_BOUNDS').split(",")))
     bounds = (max(0, default_bounds[0] - widen_factor), (default_bounds[1] + widen_factor))
+    if ub_multiplier != 1:
+        bounds[1] = int(ub_multiplier * bounds[1])
 
     drop_indices = []
     # Iterate through posts and check all conditions.
@@ -240,6 +245,7 @@ def accumulate_comments(post_id, subreddit, headers=None, next_comments=None):
                         'upvotes': comment['ups'],
                         'num_awards': comment['total_awards_received'],
                         'awards': awards,
+                        'avatar': '',
                         'postability': 0
                     }])
                 df = pandas.concat([df, comment_data], ignore_index=True)
@@ -256,6 +262,8 @@ def accumulate_comments(post_id, subreddit, headers=None, next_comments=None):
 def rank_comments(df, widen_factor=0):
     '''
     Given a dataframe of comments, throw away unpostable ones, then calculate most postable one.
+
+    widen_factor is used for expanding the upper bound to try to find a post
 
     Criteria for being postable:
         - Wordcount in range [50, 120]
@@ -274,7 +282,8 @@ def rank_comments(df, widen_factor=0):
     
     load_dotenv()
     default_bounds = tuple(map(int, os.getenv('WORDCOUNT_BOUNDS').split(",")))
-    bounds = (default_bounds[0], (default_bounds[1] + widen_factor))
+    # Automatically multiply the upper bound by 0.5 because you're fetching a comment
+    bounds = (default_bounds[0], int(0.5 * (default_bounds[1] + widen_factor)))
 
     drop_indices = []
     # Iterate through posts and check all conditions.
@@ -292,6 +301,22 @@ def rank_comments(df, widen_factor=0):
     df = df.sort_values(by='postability', ascending=False)
 
     return df
+
+
+def get_avatar(username, headers=None):
+    '''
+    Given a Reddit username, get a link to their avatar picture.
+    '''
+    if headers is not None:
+        r = requests.get(f"https://oauth.reddit.com/user/{username}/about.json", headers=headers)
+    else:
+        r = requests.get(f"https://reddit.com/user/{username}/about.json")
+
+    if(r.status_code == 200):
+        return r.json()['data']['subreddit']['icon_img']
+    else:
+        print(r.json())
+        return ''
 
 
 def get_top_post(subreddits, comment=False):
@@ -365,9 +390,10 @@ def get_top_post(subreddits, comment=False):
             if bound_increase > 500:
                 break
 
-        # If a comment is found, set the top comment to it
+        # If a comment is found, set the top comment to it and fetch the author's avatar
         if comments.shape[0] != 0:
             top_comment = comments.iloc[0]
+            top_comment['avatar'] = get_avatar(top_comment['author'])
 
     return top_post, top_comment
 
@@ -390,9 +416,11 @@ if __name__ == "__main__":
                 # "TodayILearned",
                 ]
 
-    top_post, top_comment = get_top_post(subreddits, True)
+    # top_post, top_comment = get_top_post(subreddits, True)
 
-    if type(top_comment) != bool:
-        print(top_post['title'], top_post['body'], top_comment['body'], sep="\n\n")
-    else:
-        print(top_post['title'], top_post['body'], top_post['num_comments'], sep="\n\n")
+    # if type(top_comment) != bool:
+    #     print(top_post['title'], top_post['body'], top_comment['body'], sep="\n\n")
+    # else:
+    #     print(top_post['title'], top_post['body'], top_post['num_comments'], sep="\n\n")
+
+    get_avatar('lukesutor', headers=get_oauth_headers())
