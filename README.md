@@ -8,6 +8,7 @@ This project involves scraping content from reddit and turning it into TikTok / 
     ```
     - Title                 - Body
     - Author                - Upvotes
+    - ID                    - Subreddit
     - Number of Comments    - Number of Awards
     - Thumbnail             - Awards  
     - Postability           - NSFW Rating
@@ -44,4 +45,4 @@ This project involves scraping content from reddit and turning it into TikTok / 
     <img width="40%" src="media/example_post_2.gif" alt="Example social media post of a joke made using the content generation pipeline."></img>
 </p>
 
-<p align="center"><i>Note that the video quality and framerate were greatly reduced due to being converted to a gif. <br />Generated mp4 videos have 1080p quality</i></p>
+<p align="center"><i>Note that the video quality and framerate were greatly reduced due to being converted to a gif. <br />Generated mp4 videos have 1080p quality.</i></p>

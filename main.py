@@ -29,14 +29,14 @@ def create_post():
                                      description='Generate TikTok style content from Reddit posts')
     parser.add_argument('-s', '--subreddits', type=str, nargs='+',
                         help='A list of subreddits to scrape from', required=True)
-    parser.add_argument('-n', '--name', type=str, nargs=1, default=None,
+    parser.add_argument('-n', '--name', type=str, default=None,
                         help='A name for the post', required=False)
     parser.add_argument('-c', '--comment', type=bool, nargs=1, default=False,
                         help='Boolean wether or not to scrape a comment with the Reddit post', required=False)
     
     args = parser.parse_args()
     subreddits = args.subreddits
-    post_name = args.name[0]
+    post_name = args.name
     comment = args.comment
 
     load_dotenv()
@@ -46,19 +46,6 @@ def create_post():
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
     post = get_top_post(subreddits, comment)
-
-    # post = {
-    #     'title': 'Example Post',
-    #     'body': 'This post was created using the content generation pipeline.',
-    #     'author': 'lukesutor',
-    #     'upvotes': 2100,
-    #     'num_awards': 0,
-    #     'num_comments': 323,
-    #     'thumbnail': '',
-    #     'awards': [],
-    #     'nsfw': False,
-    #     'postability': 5.64
-    #     }
 
     create_image(post, post_name)
 
@@ -73,23 +60,35 @@ def create_post():
 
 
 if __name__ == "__main__":
-    POST_NAME = 'real_post'
-    SUBREDDITS = (
-                "TalesFromRetail",
-                "AmItheAsshole",
-                "Showerthoughts",
-                "dadjokes",
-                # "AskReddit",
-                "tifu",
-                "talesfromtechsupport",
-                "humor",
-                "Cleanjokes",
-                "Jokes",
-                "Punny",
-                "Lightbulb",
-                "StoriesAboutKevin",
-                "TodayILearned",
-                )
+    # example_post = {
+    #     'title': 'Example Post',
+    #     'body': 'This post was created using the content generation pipeline.',
+    #     'author': 'lukesutor',
+    #     'upvotes': 2100,
+    #     'num_awards': 0,
+    #     'num_comments': 323,
+    #     'thumbnail': '',
+    #     'awards': [],
+    #     'nsfw': False,
+    #     'postability': 5.64
+    #     }
+
+    # SUBREDDITS = (
+    #             "TalesFromRetail",
+    #             "AmItheAsshole",
+    #             "Showerthoughts",
+    #             "dadjokes",
+    #             # "AskReddit",
+    #             "tifu",
+    #             "talesfromtechsupport",
+    #             "humor",
+    #             "Cleanjokes",
+    #             "Jokes",
+    #             "Punny",
+    #             "Lightbulb",
+    #             "StoriesAboutKevin",
+    #             "TodayILearned",
+    #             )
     
     '''
     Command to scrape all subreddits:
