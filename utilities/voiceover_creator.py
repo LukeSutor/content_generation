@@ -32,12 +32,11 @@ def format_ssml(text, speed=100):
     return ssml
 
 
-def create_voiceover(post, filename):
+def create_voiceover(post, filename, comment=None):
     '''
     Uses the AWS Polly API to create a voiceover of a reddit post.
     '''
     load_dotenv()
-
     region = os.getenv('AWS_REGION')
     polly_access = os.getenv('POLLY_ACCESS')
     polly_secret = os.getenv('POLLY_SECRET')
@@ -50,7 +49,15 @@ def create_voiceover(post, filename):
         aws_secret_access_key=polly_secret,
     )
 
-    ssml = format_ssml(post['title']+"\n"+post['body'])
+    # Get the total word count to set the speed for the voiceover
+    wordcount = len(post['title'].split()) + len(post['body'].split())
+    if comment is not None:
+        wordcount += len(comment['body'].split())
+    # This function keeps the speed at 100% until you get over 120 words
+    # then gradually speeds up the talking until you get to 200% at 520 words
+    speed = min(int(max(100, (wordcount + 280) * 0.25)), 200)
+
+    ssml = format_ssml(post['title']+"\n"+post['body'], speed=speed)
 
     response = client.synthesize_speech(
         Engine='neural',
@@ -66,13 +73,35 @@ def create_voiceover(post, filename):
     with open(os.path.join(save_path, filename + ".mp3"), "wb") as binary_file:
         binary_file.write(voiceover)
 
+    # Do the same for the comment
+    if comment is not None:
+        ssml = format_ssml(comment['body'], speed=speed)
+
+        response = client.synthesize_speech(
+        Engine='neural',
+        OutputFormat='mp3',
+        SampleRate='24000',
+        Text=ssml,
+        TextType='ssml',
+        VoiceId='Matthew'
+        )
+        
+        voiceover = response['AudioStream'].read()
+
+        with open(os.path.join(save_path, filename + "_comment" + ".mp3"), "wb") as binary_file:
+            binary_file.write(voiceover)
+
 
 if __name__ == "__main__":
     post = {
         'title': 'God created the first Swiss and asked him:',
-        'body': '"What do you want?" "Mountains," replied the Swiss.\n\nGod created mountains for the Swiss and asked him, "What else do you want?" "Cows," said the Swiss.\n\nGod created cows for the Swiss. The Swiss milked the cows, tasted the milk and asked, "Will you taste, dear God?" The Swiss filled a cup with milk and handed it to God. Dear God took the cup, drank it and said, "The milk is really quite good. What more do you want?"\n\n\"1.20 Swiss Franc.\"'
+        'body': 'This is the body of the post.'
+    }
+
+    comment = {
+        'body': 'This is the body of the comment.'
     }
     # example_text = "\n\nThis is some \n\n\n\ntext for\n a joke.\nIt is very funny.\n\n\n\n\nHaha laugh.\n\n"
 
-    create_voiceover(post)
+    create_voiceover(post, "test", comment=comment)
     # format_ssml(post['title'] + "\n" + post['body'])

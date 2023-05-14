@@ -50,10 +50,11 @@ def create_post():
     # If you were trying to fetch a comment but couldn't, set fetch_comment to false
     if fetch_comment and type(comment) == bool and not comment:
         fetch_comment = False
+        comment = None
 
-    create_image(post, post_name, fetch_comment)
+    create_image(post, post_name, comment=comment)
 
-    create_voiceover(post, post_name)
+    create_voiceover(post, post_name, comment=comment)
 
     create_video(post_name)
 
