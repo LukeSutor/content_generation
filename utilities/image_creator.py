@@ -7,10 +7,10 @@ import math
 import os
 
 
-def create_html_image(post, filename):
+def create_post_image(post, filename):
     '''
     Takes in a dataframe of a post and creates an html document of it.
-    Then uses html2image to take a screenshot of said html.
+    Then uses html2image to take a screenshot of it.
     '''
     load_dotenv()
 
@@ -46,12 +46,59 @@ def create_html_image(post, filename):
     # Make the time a random number between 2 and 23 hours
     document = document.replace("_/time/_", str(math.ceil(random.random() * 21 + 1)))
 
+    # Take HTML screenshot
+    hti = Html2Image(output_path=save_dir)
+    hti.screenshot(html_str=document, save_as=(filename + ".png"))
+
+
+def create_comment_image(comment, filename):
+    '''
+    Takes in a dataframe of a comment and creates an html document of it.
+    Then uses html2image to take a screenshot of it.
+    '''
+    load_dotenv()
+
+    save_dir = os.getenv('SAVE_PATH')
+
+    with open("./utilities/RedditComment.html", "r") as f:
+        document = f.read()
+
+    # Format the body
+    body = comment['body']
+    body = body.replace('\n', '<br />')
+
+    # Format the upvotes
+    upvotes = int(comment['upvotes'])
+    if upvotes >= 1000:
+        upvotes = str(upvotes // 100 / 10) + "k"
+    else:
+        upvotes = str(upvotes)
+    
+    # Format the awards (only add up to 8)
+    award_format = "<img style=\"height: 20px; margin-left: 8px;\" src=\"{}\" />"
+    awards = ""
+    for award in comment['awards'][0:8]:
+        awards += award_format.format(award)
+
+    # Format the avatar image
+    # If the avatar image isn't provided, use the default gray one
+    if comment['avatar'] == "":
+        avatar = "<img style=\"height: 32px; width: 32px;\" src=\"https://www.redditstatic.com/avatars/avatar_default_02_A5A4A4.png\" />"
+    else:
+        avatar = f"<img style=\"height: 32px; width: 32px;\" src=\"{comment['avatar']}\" />"
+
+    # Set the text for all the elements
+    document = document.replace("_/body/_", body)
+    document = document.replace("_/username/_", comment['author'])
+    document = document.replace("_/awards/_", awards)
+    document = document.replace("_/upvotes/_", upvotes)
+    document = document.replace("_/avatar/_", avatar)
+    # Make the time a random number between 1 and 59 minutes
+    document = document.replace("_/time/_", str(math.ceil(random.random() * 59)))
 
     # Take HTML screenshot
     hti = Html2Image(output_path=save_dir)
-
-    hti.screenshot(html_str=document, save_as=(filename + ".png"))
-
+    hti.screenshot(html_str=document, save_as=(filename + "_comment" + ".png"))
 
 def row_same(row):
     '''
@@ -114,12 +161,16 @@ def clean_image(filename):
     image = image.save(os.path.join(save_dir, filename + ".png"))
 
 
-def create_image(post, filename):
+def create_image(post, filename, comment=None):
     '''
     Helper function to create and clean a post image.
     '''
-    create_html_image(post, filename)
+    create_post_image(post, filename)
     clean_image(filename)
+
+    if comment is not None:
+        create_comment_image(comment, filename)
+        clean_image(filename + "_comment")
 
 
 if __name__ == "__main__":
@@ -136,17 +187,14 @@ if __name__ == "__main__":
         'postability': 5.64
         }
     
-    post_data = {
-        'title': 'Example Post',
-        'body': 'This is an example Reddit post made using the html2image library. The post is authored by me and has 1500 upvotes, 123 comments, and the Reddit Gold award.',
+    comment_data = {
+        'body': 'This is an example comment.',
         'author': 'lukesutor',
-        'upvotes': 1500,
+        'upvotes': '2560',
         'num_awards': 1,
-        'num_comments': 123,
-        'thumbnail': '',
-        'awards': ["https://www.redditstatic.com/gold/awards/icon/gold_512.png"],
-        'nsfw': False,
-        'postability': 5.64
-        }
+        'awards': ["https://www.redditstatic.com/gold/awards/icon/gold_32.png"],
+        'avatar': 'https://styles.redditmedia.com/t5_7irke/styles/profileIcon_snoo80951321-4a73-4725-8ea5-50e14bc9628c-headshot-f.png?width=256&amp;height=256&amp;crop=256:256,smart&amp;v=enabled&amp;s=3778970438ba2003aa68c86b3a48f91d4a8857af',
+        'postability': 100
+    }
     
-    create_image(post_data, 'example_post')
+    create_image(post_data, 'testing', comment=comment_data)

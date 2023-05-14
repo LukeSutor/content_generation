@@ -37,7 +37,7 @@ def create_post():
     args = parser.parse_args()
     subreddits = args.subreddits
     post_name = args.name
-    comment = args.comment
+    fetch_comment = args.comment
 
     load_dotenv()
     save_path = os.getenv('SAVE_PATH')
@@ -45,9 +45,13 @@ def create_post():
     if post_name is None:
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    post = get_top_post(subreddits, comment)
+    post, comment = get_top_post(subreddits, fetch_comment)
 
-    create_image(post, post_name)
+    # If you were trying to fetch a comment but couldn't, set fetch_comment to false
+    if fetch_comment and type(comment) == bool and not comment:
+        fetch_comment = False
+
+    create_image(post, post_name, fetch_comment)
 
     create_voiceover(post, post_name)
 
