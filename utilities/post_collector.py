@@ -160,7 +160,7 @@ def rank_posts(df, widen_factor=0):
     return df
 
 
-def get_top_post(subreddits):
+def get_top_post(subreddits, comment):
     '''
     Get the most postable reddit post from the subreddit(s) given
     '''

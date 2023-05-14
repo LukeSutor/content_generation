@@ -71,5 +71,6 @@ dependencies:
   - zlib=1.2.13=h8cc25b3_0
   - zstd=1.5.2=h19a0ad4_0
   - pip:
+    - argparse==1.4.0
     - html2image==2.0.3
 prefix: C:\Users\Luke\anaconda3\envs\content_generation
