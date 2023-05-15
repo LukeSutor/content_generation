@@ -17,10 +17,11 @@ def cleanup(post_name, comment=False):
     os.remove(os.path.join(save_dir, post_name + ".png"))
     os.remove(os.path.join(save_dir, post_name + ".mp3"))
     
-    # Do the same for the comment if it exists
+    # Do the same for the comment files if they were created
     if comment:
         os.remove(os.path.join(save_dir, post_name + "_comment" + ".png"))
         os.remove(os.path.join(save_dir, post_name + "_comment" + ".mp3"))
+        os.remove(os.path.join(save_dir, "silence.mp3"))
 
 
 def create_post():
@@ -36,16 +37,18 @@ def create_post():
                         help='A list of subreddits to scrape from', required=True)
     parser.add_argument('-n', '--name', type=str, default=None,
                         help='A name for the post', required=False)
-    parser.add_argument('-c', '--comment', type=bool, nargs=1, default=False,
-                        help='Boolean wether or not to scrape a comment with the Reddit post', required=False)
+    parser.add_argument('-c', '--comment', action='store_true', required=False,
+                        help='Whether or not to scrape a comment along with the post')
+    parser.add_argument('-a', '--anonymize', action='store_true', required=False,
+                        help='Whether or not to anonymize the user(s) scraped')
     
     args = parser.parse_args()
     subreddits = args.subreddits
     post_name = args.name
     fetch_comment = args.comment
+    anonymize = args.anonymize
 
     load_dotenv()
-    save_path = os.getenv('SAVE_PATH')
 
     if post_name is None:
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
@@ -56,6 +59,13 @@ def create_post():
     if not fetch_comment or (fetch_comment and type(comment) == bool and not comment):
         fetch_comment = False
         comment = None
+
+    # If anonymize is passed, anonymize the user(s)
+    if anonymize:
+        post['author'] = "AnonymousUser"
+        if comment is not None:
+            comment['author'] = "AnonymousUser"
+            comment['avatar'] = "https://www.redditstatic.com/avatars/avatar_default_02_A5A4A4.png"
 
     create_image(post, post_name, comment=comment)
 

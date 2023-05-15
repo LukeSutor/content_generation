@@ -26,7 +26,7 @@ def get_oauth_headers():
                     auth=auth, data=data, headers=headers)
     
     if r.status_code != 200:
-        print(r.json())
+        print(r)
     
     TOKEN = r.json()['access_token']
 
@@ -58,7 +58,7 @@ def get_top_posts(subreddit, headers=None, final_id=None):
     if(r.status_code == 200):
         return r.json()['data']['children']
     else:
-        print(r.json())
+        print(r)
         return False
     
 
@@ -180,7 +180,7 @@ def get_top_comments(post_id, subreddit, headers=None):
     if(r.status_code == 200):
         return r.json()[1]['data']['children']
     else:
-        print(r.json())
+        print(r)
         return False
     
 
@@ -312,10 +312,10 @@ def get_avatar(username, headers=None):
     else:
         r = requests.get(f"https://reddit.com/user/{username}/about.json")
 
-    if(r.status_code == 200):
+    if r.status_code == 200:
         return r.json()['data']['subreddit']['icon_img']
     else:
-        print(r.json())
+        print(r)
         return ''
 
 

@@ -7,6 +7,17 @@ import math
 import os
 
 
+def format_number(number):
+    '''
+    Given an int or string that corresponds to a number,
+    format it the way Reddit does.
+    '''
+    if int(number) >= 1000:
+        number = str(int(number) // 100 / 10) + "k"
+    
+    return str(number)
+
+
 def create_post_image(post, filename):
     '''
     Takes in a dataframe of a post and creates an html document of it.
@@ -23,12 +34,9 @@ def create_post_image(post, filename):
     body = post['body']
     body = body.replace('\n', '<br />')
 
-    # Format the upvotes
-    upvotes = int(post['upvotes'])
-    if upvotes >= 1000:
-        upvotes = str(upvotes // 100 / 10) + "k"
-    else:
-        upvotes = str(upvotes)
+    # Format the upvotes and comments
+    upvotes = format_number(post['upvotes'])
+    comments = format_number(post['num_comments'])
 
     # Format the awards (only add up to 8)
     award_format = "<img style=\"height: 20px; margin-left: 8px;\" src=\"{}\" />"
@@ -42,7 +50,7 @@ def create_post_image(post, filename):
     document = document.replace("_/username/_", post['author'])
     document = document.replace("_/awards/_", awards)
     document = document.replace("_/upvotes/_", upvotes)
-    document = document.replace("_/num_comments/_", str(post['num_comments']))
+    document = document.replace("_/num_comments/_", comments)
     # Make the time a random number between 2 and 23 hours
     document = document.replace("_/time/_", str(math.ceil(random.random() * 21 + 1)))
 
@@ -68,11 +76,7 @@ def create_comment_image(comment, filename):
     body = body.replace('\n', '<br />')
 
     # Format the upvotes
-    upvotes = int(comment['upvotes'])
-    if upvotes >= 1000:
-        upvotes = str(upvotes // 100 / 10) + "k"
-    else:
-        upvotes = str(upvotes)
+    upvotes = format_number(comment['upvotes'])
     
     # Format the awards (only add up to 8)
     award_format = "<img style=\"height: 20px; margin-left: 8px;\" src=\"{}\" />"
@@ -197,4 +201,4 @@ if __name__ == "__main__":
         'postability': 100
     }
     
-    create_image(post_data, 'testing', comment=comment_data)
+    # create_image(post_data, 'testing', comment=comment_data)

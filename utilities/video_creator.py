@@ -1,6 +1,7 @@
 from moviepy.editor import *
 from moviepy.video.fx.all import crop
 from dotenv import load_dotenv
+import numpy as np
 import random
 import math
 import os
@@ -14,6 +15,18 @@ def get_video(folder):
     video = random.sample(videos, 1)
 
     return video
+
+
+def create_silence(save_path):
+    '''
+    Given a directory and filename, create a one second audioclip of silence named "silence.mp3"
+    
+    Note: This isn't the best way of adding a one second silence buffer
+    but nothing else seems to work, may figure it out later.
+    '''
+    make_frame = lambda t: 2*[ 0 * t ]
+    clip = AudioClip(make_frame, duration=1).set_fps(24000)
+    clip.write_audiofile(os.path.join(save_path, "silence.mp3"))
 
 
 def create_video(filename, comment=False):
@@ -33,8 +46,9 @@ def create_video(filename, comment=False):
         voiceover_comment = AudioFileClip(os.path.join(save_path, filename + "_comment" + ".mp3"))
         voiceover_comment_length = voiceover_comment.duration
         # add a second of silence between clips
-        silent_second = AudioFileClip(os.path.join(save_path, "silent_second.mp3"))
-        voiceover = concatenate_audioclips([voiceover, silent_second, voiceover_comment])
+        create_silence(save_path)
+        silence = AudioFileClip(os.path.join(save_path, "silence.mp3"))
+        voiceover = concatenate_audioclips([voiceover, silence, voiceover_comment])
         voiceover_length += voiceover_comment_length
     
     # Get a random video and crop it to a random time interval of the audio length
@@ -43,7 +57,8 @@ def create_video(filename, comment=False):
 
     video_length = background_clip.duration
     start_time = math.floor(random.random() * (video_length  - voiceover_length))
-    background_clip = background_clip.subclip(start_time, (start_time + voiceover_length + 2))
+    added_time = 2 if comment else 1
+    background_clip = background_clip.subclip(start_time, (start_time + voiceover_length + added_time))
 
     # Crop it to be aspect ratio 9x16 for reels content
     x, y = background_clip.size
@@ -70,7 +85,7 @@ def create_video(filename, comment=False):
         clips.append(reddit_comment)
 
     final_clip = CompositeVideoClip(clips).set_audio(voiceover)
-    final_clip.write_videofile(os.path.join(save_path, filename + ".mp4"), codec='libx264', ffmpeg_params=['-vf', 'format=yuv420p'], preset='ultrafast')
+    final_clip.write_videofile(os.path.join(save_path, filename + ".mp4"), temp_audiofile=os.path.join(save_path, "temp.mp3"), codec='libx264', ffmpeg_params=['-vf', 'format=yuv420p'], preset='ultrafast')
 
     background_clip.close()
     reddit_post.close()
