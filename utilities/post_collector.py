@@ -393,7 +393,7 @@ def get_top_post(subreddits, comment=False):
         # If a comment is found, set the top comment to it and fetch the author's avatar
         if comments.shape[0] != 0:
             top_comment = comments.iloc[0]
-            top_comment['avatar'] = get_avatar(top_comment['author'])
+            top_comment['avatar'] = get_avatar(top_comment['author'], headers=headers)
 
     return top_post, top_comment
 

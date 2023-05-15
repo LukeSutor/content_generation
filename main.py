@@ -8,7 +8,7 @@ import argparse
 import os
 
 
-def cleanup(post_name):
+def cleanup(post_name, comment=False):
     '''
     Given a post name, clean up the unneseccary png and mp3 files.
     '''
@@ -16,6 +16,11 @@ def cleanup(post_name):
 
     os.remove(os.path.join(save_dir, post_name + ".png"))
     os.remove(os.path.join(save_dir, post_name + ".mp3"))
+    
+    # Do the same for the comment if it exists
+    if comment:
+        os.remove(os.path.join(save_dir, post_name + "_comment" + ".png"))
+        os.remove(os.path.join(save_dir, post_name + "_comment" + ".mp3"))
 
 
 def create_post():
@@ -48,7 +53,7 @@ def create_post():
     post, comment = get_top_post(subreddits, fetch_comment)
 
     # If you were trying to fetch a comment but couldn't, set fetch_comment to false
-    if fetch_comment and type(comment) == bool and not comment:
+    if not fetch_comment or (fetch_comment and type(comment) == bool and not comment):
         fetch_comment = False
         comment = None
 
@@ -56,12 +61,9 @@ def create_post():
 
     create_voiceover(post, post_name, comment=comment)
 
-    create_video(post_name)
+    create_video(post_name, comment=fetch_comment)
 
-    cleanup(post_name)
-
-    print("Done! post created and saved under ", post_name, ".mp4 in ", save_path, sep="")
-
+    cleanup(post_name, comment=fetch_comment)
 
 
 if __name__ == "__main__":
@@ -97,7 +99,7 @@ if __name__ == "__main__":
     
     '''
     Command to scrape all subreddits:
-    python main.py -s TalesFromRetail AmItheAsshole Showerthoughts dadjokes tifu talesfromtechsupport humor Cleanjokes Jokes Punny Lightbulb StoriesAboutKevin TodayILearned
+python main.py -s TalesFromRetail AmItheAsshole Showerthoughts dadjokes tifu talesfromtechsupport humor Cleanjokes Jokes Punny Lightbulb StoriesAboutKevin TodayILearned
     '''
     
     create_post()
