@@ -12,7 +12,7 @@ def get_oauth_headers():
     client_id = os.getenv("CLIENT_ID")
     secret_token = os.getenv("SECRET_TOKEN")
     username = os.getenv("REDDIT_USERNAME")
-    password = os.getenv("PASSWORD")
+    password = os.getenv("REDDIT_PASSWORD")
 
     auth = requests.auth.HTTPBasicAuth(client_id, secret_token)
 
@@ -245,6 +245,7 @@ def accumulate_comments(post_id, subreddit, headers=None, next_comments=None):
                         'upvotes': comment['ups'],
                         'num_awards': comment['total_awards_received'],
                         'awards': awards,
+                        'id': comment['name'],
                         'avatar': '',
                         'postability': 0
                     }])

@@ -192,13 +192,13 @@ if __name__ == "__main__":
         }
     
     comment_data = {
-        'body': 'This is an example comment.',
+        'body': 'This is an example comment. It was authored by me, has 512 upvotes, and the Reddit Platinum award.',
         'author': 'lukesutor',
-        'upvotes': '2560',
+        'upvotes': '512',
         'num_awards': 1,
-        'awards': ["https://www.redditstatic.com/gold/awards/icon/gold_32.png"],
+        'awards': ["https://www.redditstatic.com/gold/awards/icon/platinum_32.png"],
         'avatar': 'https://styles.redditmedia.com/t5_7irke/styles/profileIcon_snoo80951321-4a73-4725-8ea5-50e14bc9628c-headshot-f.png?width=256&amp;height=256&amp;crop=256:256,smart&amp;v=enabled&amp;s=3778970438ba2003aa68c86b3a48f91d4a8857af',
         'postability': 100
     }
     
-    # create_image(post_data, 'testing', comment=comment_data)
+    create_image(post_data, 'testing', comment=comment_data)
