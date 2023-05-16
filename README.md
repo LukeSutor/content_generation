@@ -61,7 +61,7 @@ This project involves scraping content from reddit and turning it into TikTok / 
     <img width="40%" src="media/example_post_2.gif" alt="Example social media post of a joke made using the content generation pipeline."></img>
 </p>
 
-<p align="center"><i>Note that these examples have very poor resolution and framerate because they were converted to gifs. Generated mp4 videos are 1080p 60fps.</i></p>
+<p align="center"><i>Note that these examples have very poor resolution and framerate because they were converted to gifs.<br />Generated mp4 videos are 1080p 60fps.</i></p>
 
 ## Installing Locally:
 First, you need the repository on your local machine. Run the following commands:
@@ -82,8 +82,8 @@ After this is done, you need to set up your Reddit dev account and project, Amaz
 <summary>1. Setting up the Reddit Dev Account</summary>
 <br />
 <ul>
-    <li>Follow [this link](https://support.reddithelp.com/hc/en-us/requests/new?ticket_form_id=14868593862164) to register to use the Reddit API.</li>
-    <li>Once you're registered, follow [this link](https://www.reddit.com/prefs/apps), scroll to the bottom, click "create another app," and create a script.</li>
+    <li>Follow <a href="https://support.reddithelp.com/hc/en-us/requests/new?ticket_form_id=14868593862164" target="_blank">this link</a> to register to use the Reddit API.</li>
+    <li>Once you're registered, follow <a href="https://www.reddit.com/prefs/apps" target="_blank">this link</a>, scroll to the bottom, click "create another app," and create a script.</li>
     <li>Finally, get the app's <code>client ID</code> and <code>secret key</code> (both locations pictured). You will need these for the .env file later.</li>
     <br />
 </ul>
