@@ -129,7 +129,7 @@ After this is done, you need to set up your Reddit dev account and project, Amaz
 </details>
 <br />
 
-Once these steps are done, the content generation pipeline can be called in the command line using `python main.py [...arguments]` The arguments are as follows:
+Once these steps are done, the content generation pipeline can be called in the command line using `python main.py [...arguments]`. The arguments are as follows:
 - `-s` or `--subreddits ` - The subreddits to gather posts from (required)
 - `-n` or `--name` - What to name the created post. If this argument isn't given the default value is the datetime (formatted year-month-date_hours-minutes-seconds)
 - `-c` or `--comment` - A boolean option which, if given, will prompt the pipeline to gather a comment with the post.
