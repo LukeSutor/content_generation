@@ -1,4 +1,5 @@
 from utilities.post_collector import get_top_post
+from utilities.comment_collector import get_top_comment
 from utilities.image_creator import create_image
 from utilities.voiceover_creator import create_voiceover
 from utilities.video_creator import create_video
@@ -40,6 +41,8 @@ def create_post():
                         help='A name for the post', required=False)
     parser.add_argument('-c', '--comment', action='store_true', required=False,
                         help='Whether or not to scrape a comment along with the post')
+    parser.add_argument('-u', '--upload', action='store_true', required=False,
+                        help='Whether or not to upload the post to Instagram')
     parser.add_argument('-a', '--anonymize', action='store_true', required=False,
                         help='Whether or not to anonymize the user(s) scraped')
     
@@ -47,6 +50,7 @@ def create_post():
     subreddits = args.subreddits
     post_name = args.name
     fetch_comment = args.comment
+    upload = args.upload
     anonymize = args.anonymize
 
     load_dotenv()
@@ -54,7 +58,8 @@ def create_post():
     if post_name is None:
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    post, comment = get_top_post(subreddits, fetch_comment)
+    post, headers = get_top_post(subreddits, fetch_comment)
+    comment = get_top_comment(post, headers=headers)
 
     # If you were trying to fetch a comment but couldn't, set fetch_comment to false
     if not fetch_comment or (fetch_comment and type(comment) == bool and not comment):
@@ -76,9 +81,10 @@ def create_post():
 
     cleanup(post_name, comment=fetch_comment)
 
-    post_reel(post_name, post)
+    if upload:
+        post_reel(post_name, post)
 
-    print("Video posted.")
+    print("Done.")
 
 
 if __name__ == "__main__":

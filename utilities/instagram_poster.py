@@ -51,7 +51,7 @@ def create_caption(post):
     title = post['title']
     author = post['author']
 
-    caption = title + "\nBy u/" + author + "\nFollow @" + username + " for more daily content🔥" + "\n\n\nTags:\n" + hashtags
+    caption = title + "\nBy u/" + author + "\nFollow @" + username + " for more daily content!" + "\n\n\nTags:\n" + hashtags
 
     return caption
 

@@ -53,9 +53,9 @@ def create_voiceover(post, filename, comment=None):
     wordcount = len(post['title'].split()) + len(post['body'].split())
     if comment is not None:
         wordcount += len(comment['body'].split())
-    # This function keeps the speed at 100% until you get over 120 words
-    # then gradually speeds up the talking until you get to 200% at 520 words
-    speed = min(int(max(100, (wordcount + 280) * 0.25)), 200)
+    # This function keeps the speed at 105% until you get over 100 words
+    # then gradually speeds up the talking until you get to 200% at 480 words
+    speed = min(int(max(105, (wordcount + 320) * 0.25)), 200)
 
     ssml = format_ssml(post['title']+"\n"+post['body'], speed=speed)
 
