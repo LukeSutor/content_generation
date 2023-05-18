@@ -2,6 +2,7 @@ from utilities.post_collector import get_top_post
 from utilities.image_creator import create_image
 from utilities.voiceover_creator import create_voiceover
 from utilities.video_creator import create_video
+from utilities.instagram_poster import post_reel
 from dotenv import load_dotenv
 import datetime
 import argparse
@@ -74,6 +75,10 @@ def create_post():
     create_video(post_name, comment=fetch_comment)
 
     cleanup(post_name, comment=fetch_comment)
+
+    post_reel(post_name, post)
+
+    print("Video posted.")
 
 
 if __name__ == "__main__":
