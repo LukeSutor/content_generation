@@ -107,7 +107,7 @@ def accumulate_posts(subreddits, headers=None, final_ids=None):
                     'upvotes': post['ups'],
                     'num_awards': post['total_awards_received'],
                     'num_comments': post['num_comments'],
-                    'thumbnail': post['thumbnail'],
+                    'url': post['url'],
                     'awards': awards,
                     'nsfw': post['over_18'],
                     'subreddit': post['subreddit'],
@@ -118,7 +118,7 @@ def accumulate_posts(subreddits, headers=None, final_ids=None):
     return df, new_final_ids
 
 
-def rank_posts(df, widen_factor=0, ub_multiplier=1):
+def rank_posts(df, bounds, widen_factor=0, ub_multiplier=1):
     '''
     Given a dataframe of posts, throw away unpostable ones, then calculate most postable one.
 
@@ -141,7 +141,7 @@ def rank_posts(df, widen_factor=0, ub_multiplier=1):
         return df
     
     load_dotenv()
-    default_bounds = tuple(map(int, os.getenv('WORDCOUNT_BOUNDS').split(",")))
+    default_bounds = tuple(map(int, bounds.split(",")))
     bounds = (max(0, default_bounds[0] - widen_factor), (default_bounds[1] + widen_factor))
     if ub_multiplier != 1:
         bounds[1] = int(ub_multiplier * bounds[1])
@@ -151,7 +151,14 @@ def rank_posts(df, widen_factor=0, ub_multiplier=1):
     # Then calculate postability if all conditions met.
     for index in range(df.shape[0]):
         wordcount = len(df.iloc[index]['body'].split(" ")) + len(df.iloc[index]['title'].split(" "))
-        if wordcount not in range(*bounds) or df.iloc[index]['thumbnail'] != "" or df.iloc[index]['nsfw']:
+
+        # Check if the post contains an image
+        contains_image = False
+        if "jpg" in df.iloc[index]['url'] or "jpeg" in df.iloc[index]['url'] or \
+        "png" in df.iloc[index]['url'] or "gif" in df.iloc[index]['url']:
+            contains_image = True
+
+        if wordcount not in range(*bounds) or df.iloc[index]['nsfw'] or contains_image:
             drop_indices.append(index)
         else:
             postability = (df.iloc[index]['upvotes'] / 10) * wordcount * (20**df.iloc[index]['num_awards'])
@@ -164,7 +171,7 @@ def rank_posts(df, widen_factor=0, ub_multiplier=1):
     return df
 
 
-def get_top_post(subreddits, comment=False):
+def get_top_post(subreddits, bounds):
     '''
     Get the most postable reddit post (and comment if applicable) from the subreddit(s) given
     '''
@@ -177,7 +184,7 @@ def get_top_post(subreddits, comment=False):
     posts, final_ids = accumulate_posts(subreddits, headers=headers)
     total_posts = pandas.DataFrame()
     total_posts = pandas.concat([total_posts, posts], ignore_index=True)
-    posts = rank_posts(posts)
+    posts = rank_posts(posts, bounds)
 
     # If no posts meet criteria, paginate through posts until there are no 
     # more results to get, keeping track of total posts
@@ -186,7 +193,7 @@ def get_top_post(subreddits, comment=False):
         total_posts = pandas.concat([total_posts, posts], ignore_index=True)
         if posts.empty:
             break
-        posts = rank_posts(posts)
+        posts = rank_posts(posts, bounds)
         final_ids = new_final_ids
 
     # If no posts can be found with the current bounds, 
@@ -194,7 +201,7 @@ def get_top_post(subreddits, comment=False):
     current_bound_increase = bound_increase
     while posts.shape[0] == 0:
         running_total = total_posts.copy()
-        posts = rank_posts(running_total, current_bound_increase)
+        posts = rank_posts(running_total, bounds, current_bound_increase)
         current_bound_increase = current_bound_increase + bound_increase
         if current_bound_increase > 300:
             break
@@ -213,8 +220,8 @@ if __name__ == "__main__":
                 # "TalesFromRetail",
                 # "AmItheAsshole",
                 # "Showerthoughts",
-                # "dadjokes",
-                "AskReddit",
+                "dadjokes",
+                # "AskReddit",
                 # "tifu",
                 # "talesfromtechsupport",
                 # "humor",
@@ -226,9 +233,6 @@ if __name__ == "__main__":
                 # "TodayILearned",
                 ]
 
-    # top_post, top_comment = get_top_post(subreddits, True)
+    top_post, _ = get_top_post(subreddits, "5,120")
 
-    # if type(top_comment) != bool:
-    #     print(top_post['title'], top_post['body'], top_comment['body'], sep="\n\n")
-    # else:
-    #     print(top_post['title'], top_post['body'], top_post['num_comments'], sep="\n\n")
+    print(top_post['title'], "\n\n", top_post['body'])

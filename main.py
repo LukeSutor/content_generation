@@ -36,30 +36,35 @@ def create_post():
     parser = argparse.ArgumentParser(prog='Content Generation Bot', 
                                      description='Generate TikTok style content from Reddit posts')
     parser.add_argument('-s', '--subreddits', type=str, nargs='+',
-                        help='A list of subreddits to scrape from', required=True)
+                        help='A list of subreddits to scrape from.', required=True)
     parser.add_argument('-n', '--name', type=str, default=None,
-                        help='A name for the post', required=False)
+                        help='A name for the post.', required=False)
+    parser.add_argument('-b', '--bounds', type=str, default="8,121",
+                        help='Wordcount bounds formatted lb,ub.', required=False)
     parser.add_argument('-c', '--comment', action='store_true', required=False,
-                        help='Whether or not to scrape a comment along with the post')
+                        help='Whether or not to scrape a comment along with the post.')
     parser.add_argument('-u', '--upload', action='store_true', required=False,
-                        help='Whether or not to upload the post to Instagram')
+                        help='Whether or not to upload the post to Instagram.')
     parser.add_argument('-a', '--anonymize', action='store_true', required=False,
-                        help='Whether or not to anonymize the user(s) scraped')
+                        help='Whether or not to anonymize the user(s) scraped.')
     
     args = parser.parse_args()
     subreddits = args.subreddits
     post_name = args.name
+    wordcount_bounds = args.bounds
     fetch_comment = args.comment
     upload = args.upload
     anonymize = args.anonymize
 
     load_dotenv()
+    save_dir = os.getenv('SAVE_PATH')
 
+    # Create a post name if none was given
     if post_name is None:
         post_name = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    post, headers = get_top_post(subreddits, fetch_comment)
-    comment = get_top_comment(post, headers=headers)
+    post, headers = get_top_post(subreddits, wordcount_bounds)
+    comment = get_top_comment(post, wordcount_bounds, headers=headers)
 
     # If you were trying to fetch a comment but couldn't, set fetch_comment to false
     if not fetch_comment or (fetch_comment and type(comment) == bool and not comment):
@@ -106,7 +111,7 @@ if __name__ == "__main__":
     #             "AmItheAsshole",
     #             "Showerthoughts",
     #             "dadjokes",
-    #             # "AskReddit",
+    #             "AskReddit",
     #             "tifu",
     #             "talesfromtechsupport",
     #             "humor",

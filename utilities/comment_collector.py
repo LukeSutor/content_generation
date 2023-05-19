@@ -100,7 +100,7 @@ def accumulate_comments(post_id, subreddit, headers=None, next_comments=None):
     return df, new_next_comments
 
 
-def rank_comments(df, widen_factor=0):
+def rank_comments(df, bounds, widen_factor=0):
     '''
     Given a dataframe of comments, throw away unpostable ones, then calculate most postable one.
 
@@ -120,7 +120,7 @@ def rank_comments(df, widen_factor=0):
         return df
         
     load_dotenv()
-    default_bounds = tuple(map(int, os.getenv('WORDCOUNT_BOUNDS').split(",")))
+    default_bounds = tuple(map(int, bounds.split(",")))
     # Automatically multiply the upper bound by 0.5 because you're fetching a comment
     bounds = (default_bounds[0], int(0.5 * (default_bounds[1] + widen_factor)))
 
@@ -158,18 +158,18 @@ def get_avatar(username, headers=None):
         return ''
     
 
-def get_top_comment(post, headers=None):
+def get_top_comment(post, bounds, headers=None):
     '''
     Given a post, get the top comment from it
     '''
     load_dotenv()
-    bound_increase = os.getenv("BOUND_INCREASE")
+    bound_increase = int(os.getenv("BOUND_INCREASE"))
 
     # Get the first set of comments, and rank them, keeping track of all comments gathered
     comments, next_comments = accumulate_comments(post['id'], post['subreddit'], headers=headers)
     total_comments = pandas.DataFrame()
     total_comments = pandas.concat([total_comments, comments], ignore_index=True)
-    comments = rank_comments(comments)
+    comments = rank_comments(comments, bounds)
 
     # If no comments meet criteria, paginate through comments until there are no 
     # more results to get, keeping track of total comments
@@ -179,7 +179,7 @@ def get_top_comment(post, headers=None):
         total_comments = pandas.concat([total_comments, comments], ignore_index=True)
         if comments.empty:
             break
-        comments = rank_comments(comments)
+        comments = rank_comments(comments, bounds)
         next_comments = new_next_comments
 
     # If no posts can be found with the current bounds, 
@@ -187,14 +187,16 @@ def get_top_comment(post, headers=None):
     current_bound_increase = bound_increase
     while comments.shape[0] == 0:
         running_total = total_comments.copy()
-        comments = rank_comments(total_comments, current_bound_increase)
+        comments = rank_comments(total_comments, bounds, widen_factor=current_bound_increase)
         current_bound_increase = current_bound_increase + bound_increase
-        if bound_increase > 500:
+        if current_bound_increase > 200:
             break
 
     # If a comment is found, set the top comment to it and fetch the author's avatar
     if comments.shape[0] != 0:
         top_comment = comments.iloc[0]
         top_comment['avatar'] = get_avatar(top_comment['author'], headers=headers)
+    else:
+        top_comment = False
 
     return top_comment
